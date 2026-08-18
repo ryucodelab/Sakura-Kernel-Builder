@@ -1,4 +1,4 @@
-name: Build Kernel (MediaTek) - Fixed
+name: Build Kernel (MediaTek) - FINAL FIX
 
 on:
   workflow_dispatch:
@@ -79,6 +79,8 @@ jobs:
       PATCH_KERNELSU: ${{ github.event.inputs.PATCH_KERNELSU }}
       KBUILD_BUILD_USER: "github-actions"
       KBUILD_BUILD_HOST: "ci"
+      # 🔥 Tambahan: ignore unknown warning options
+      KBUILD_CFLAGS: "-Wno-unknown-warning-option"
 
     steps:
       - name: ⏱️ Record start time
@@ -143,7 +145,7 @@ jobs:
           case "$KERNEL_VERSION" in
             "4.4")
               CLANG_REPO="https://github.com/kdrag0n/proton-clang"
-              CLANG_BRANCH=""   # default branch
+              CLANG_BRANCH=""
               ;;
             "4.14")
               # Proton Clang 12 – proven stable for 4.14
@@ -229,7 +231,7 @@ jobs:
             fi
           fi
 
-      - name: 🔨 Build kernel (with POLLY disabled)
+      - name: 🔨 Build kernel (with POLLY disabled + unknown warning ignored)
         working-directory: kernel
         run: |
           export ARCH=arm64
@@ -254,11 +256,11 @@ jobs:
               -d CC_STACKPROTECTOR_AUTO \
               -d CC_STACKPROTECTOR_REGULAR \
               -e CC_STACKPROTECTOR_NONE \
-              -d LLVM_POLLY   # <-- ini yang penting
+              -d LLVM_POLLY
             make $COMMON_ARGS olddefconfig
           fi
 
-          # Build
+          # Build (KBUILD_CFLAGS already set via env)
           make $COMMON_ARGS 2>&1 | tee build.log
 
           # Find kernel image
