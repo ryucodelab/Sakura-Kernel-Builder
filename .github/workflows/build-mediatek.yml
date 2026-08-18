@@ -29,7 +29,7 @@ on:
           - "4.14"
           - "4.19"
       CODENAME:
-        description: "Device codename (e.g. lavender)"
+        description: "Device codename (e.g. merlinx)"
         required: true
         type: string
       BOT_TOKEN:
@@ -149,9 +149,8 @@ jobs:
             "4.19") CLANG_BRANCH="14.0.0-release" ;;
           esac
 
-          # Per-device override: merlin (Redmi Note 9, MT6769/Helio G85) ships
-          # a 4.14.356 tree. Bumped to Clang 17 as requested.
-          if [ "$CODENAME" = "merlin" ]; then
+          # Override khusus merlin & merlinx (MT6769/Helio G85 kernel 4.14.356) -> Clang 17
+          if [ "$CODENAME" = "merlin" ] || [ "$CODENAME" = "merlinx" ]; then
             CLANG_BRANCH="17.0.0-release"
           fi
           echo "Using clang branch: $CLANG_BRANCH"
@@ -225,7 +224,6 @@ jobs:
 
           make $COMMON_ARGS "$KERNEL_CONFIG"
 
-          # Patch dipertahankan agar kompatibel dengan Clang 17 dan mencegah error pada kernel MTK
           if [ -f scripts/config ] && [ -f out/.config ]; then
             ./scripts/config --file out/.config \
               -d COMPAT_VDSO \
